@@ -6,7 +6,7 @@ using AppClient.Core.Core;
 using AppClient.Core.Data;
 using AppClient.Core.Dialog;
 
-namespace AppClient.BLL.EquipmentsModule
+namespace AppClient.BLL.EquipmentsModule.Models
 {
 	public sealed class EquipmentManager
 	{

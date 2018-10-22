@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AppClient.BLL.EquipmentsModule
+namespace AppClient.BLL.EquipmentsModule.Models
 {
 	// Complete
 	public sealed class EquipmentCaptions
