@@ -1,4 +1,4 @@
-﻿namespace AppClient.iFSA.BLL.Equipments
+﻿namespace AppClient.iFSA.BLL.EquipmentsModule
 {
 	public enum EquipmentProperty
 	{

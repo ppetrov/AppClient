@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AppClient.iFSA.BLL.Equipments
+namespace AppClient.iFSA.BLL.EquipmentsModule
 {
 	// Complete
 	public sealed class Equipment
