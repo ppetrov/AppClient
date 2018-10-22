@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppClient.Core", "AppClient.Core\AppClient.Core.csproj", "{D05CA35E-9975-4246-BBB4-048CD17177F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppClient.iFSA.BLL", "AppClient.iFSA.BLL\AppClient.iFSA.BLL.csproj", "{8A30C619-9C23-4EDC-B514-C08C1A0B7AAE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppClient.BLL", "AppClient.BLL\AppClient.BLL.csproj", "{8A30C619-9C23-4EDC-B514-C08C1A0B7AAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

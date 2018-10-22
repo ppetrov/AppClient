@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AppClient.iFSA.BLL.EquipmentsModule
+namespace AppClient.BLL.EquipmentsModule
 {
 	// Complete
 	public sealed class EquipmentCaptions

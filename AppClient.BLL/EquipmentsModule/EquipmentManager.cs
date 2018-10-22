@@ -6,7 +6,7 @@ using AppClient.Core.Core;
 using AppClient.Core.Data;
 using AppClient.Core.Dialog;
 
-namespace AppClient.iFSA.BLL.EquipmentsModule
+namespace AppClient.BLL.EquipmentsModule
 {
 	public sealed class EquipmentManager
 	{
