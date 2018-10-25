@@ -1,5 +1,4 @@
 ﻿using System;
-using AppClient.Core.Core;
 
 namespace AppClient.Core.ViewModels
 {

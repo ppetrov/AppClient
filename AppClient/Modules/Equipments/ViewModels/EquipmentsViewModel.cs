@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using AppClient.BLL.EquipmentsModule.Models;
-using AppClient.Core.Core;
+using AppClient.Core;
 using AppClient.Core.Dialog;
 using AppClient.Core.Features;
 using AppClient.Core.Sort;
 using AppClient.Core.ViewModels;
+using AppClient.Modules.Equipments.Models;
+using Xamarin.Forms;
 
-namespace AppClient.BLL.EquipmentsModule.ViewModels
+namespace AppClient.Modules.Equipments.ViewModels
 {
 	public sealed class EquipmentsViewModel : PageViewModel
 	{
@@ -48,7 +48,7 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 			}
 		}
 
-		public ICommand ClearSearchCommand { get; }
+		public Command ClearSearchCommand { get; }
 
 		private SortOption[] SortOptions
 		{
@@ -67,7 +67,7 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 		public SortOption PowerOption { get; }
 		public SortOption LastCheckedOption { get; }
 
-		public ICommand SelectSortOptionCommand { get; }
+		public Command SelectSortOptionCommand { get; }
 
 		private List<EquipmentViewModel> _currentEquipments = new List<EquipmentViewModel>(0);
 		public List<EquipmentViewModel> CurrentEquipments
@@ -89,9 +89,9 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 			this.LastCheckedOption = new SortOption(this.MainContext.GetLocal(nameof(EquipmentProperty.LastChecked)), EquipmentProperty.LastChecked);
 			this.Captions = new EquipmentCaptions("", "", "");
 
-			//this.ClearSearchCommand = new Command(this.ClearSearch);
+			this.ClearSearchCommand = new Command(this.ClearSearch);
 
-			//this.SelectSortOptionCommand = new Command(this.SelectSortOption);
+			this.SelectSortOptionCommand = new Command(this.SelectSortOption);
 		}
 
 		public override void LoadData(object parameter)
@@ -103,30 +103,12 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 			{
 				this.Manager = parameter as EquipmentManager;
 
-				Task.Run(() =>
+				this.Equipments.Clear();
+				foreach (var equipment in this.Manager.GetEquipments())
 				{
-					try
-					{
-						this.Equipments.Clear();
-						foreach (var equipment in this.Manager.GetEquipments())
-						{
-							this.Equipments.Add(new EquipmentViewModel(equipment, this.Captions));
-						}
-					}
-					catch (Exception ex)
-					{
-						this.MainContext.Log(ex);
-					}
-					finally
-					{
-						// TODO : !!!!
-						// Invoke on the main thread
-						{
-							this.IsBusy = false;
-							this.DisplayData();
-						};
-					}
-				});
+					this.Equipments.Add(new EquipmentViewModel(equipment, this.Captions));
+				}
+				this.DisplayData();
 			}
 			catch (Exception ex)
 			{
@@ -134,14 +116,16 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 			}
 		}
 
-		public async void Add()
+		public async Task Add()
 		{
 			try
 			{
-				var equipment = await this.Manager.AddAsync(default(Equipment));
-				if (equipment != null)
+				var equipment = default(Equipment);
+
+				var addedEquipment = await this.Manager.AddAsync(equipment);
+				if (addedEquipment != null)
 				{
-					this.Equipments.Add(new EquipmentViewModel(equipment, this.Captions));
+					this.Equipments.Add(new EquipmentViewModel(addedEquipment, this.Captions));
 
 					this.DisplayData();
 				}
@@ -152,17 +136,17 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 			}
 		}
 
-		private async Task Delete()
+		public async Task Delete(EquipmentViewModel viewModel)
 		{
+			if (viewModel == null) throw new ArgumentNullException(nameof(viewModel));
+
 			var feature = new Feature(nameof(EquipmentsViewModel), nameof(this.Delete));
+
 			try
 			{
 				this.MainContext.Save(feature);
 
-				// TODO : !!!
-				var viewModel = this.Equipments[0];
-
-				var confirmation = await this.MainContext.ConfirmAsync(@"Confirm delete equipment?", ConfirmationType.YesNo);
+				var confirmation = await this.MainContext.ConfirmAsync(@"MsgConfirmDeleteEquipment", ConfirmationType.YesNo);
 				if (confirmation == ConfirmationResult.Accept)
 				{
 					if (await this.Manager.DeleteAsync(viewModel.Model))
@@ -178,6 +162,7 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 				this.MainContext.Save(feature, ex);
 			}
 		}
+
 
 		private void DisplayData(bool sort = true)
 		{
@@ -195,6 +180,7 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 			{
 				this.MainContext.Save(feature);
 
+				// TODO : !!!
 				//this.MainContext.SelectSortOption(this.SortOptions, this.ApplySort);
 			}
 			catch (Exception ex)

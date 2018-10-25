@@ -1,4 +1,4 @@
-﻿namespace AppClient.BLL.EquipmentsModule.Models
+﻿namespace AppClient.Modules.Equipments.Models
 {
 	public enum EquipmentProperty
 	{

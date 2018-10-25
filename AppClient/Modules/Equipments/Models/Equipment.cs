@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AppClient.BLL.EquipmentsModule.Models
+namespace AppClient.Modules.Equipments.Models
 {
 	// Complete
 	public sealed class Equipment

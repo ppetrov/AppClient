@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AppClient.Core.Core;
+using AppClient.Core;
 using AppClient.Core.Data;
 using AppClient.Core.Dialog;
 
-namespace AppClient.BLL.EquipmentsModule.Models
+namespace AppClient.Modules.Equipments.Models
 {
 	public sealed class EquipmentManager
 	{
@@ -88,25 +88,22 @@ namespace AppClient.BLL.EquipmentsModule.Models
 		{
 			if (equipment == null) throw new ArgumentNullException(nameof(equipment));
 
-			using (var dbContext = this.MainContext.GetService<IDbContext>())
+			if (!equipment.LastChecked.HasValue)
 			{
-				if (!equipment.LastChecked.HasValue)
+				await this.MainContext.DisplayAsync(@"N/A");
+				return false;
+			}
+			if (equipment.LastChecked.Value - DateTime.Today > TimeSpan.Zero)
+			{
+				var confirmation = await this.MainContext.ConfirmAsync(@"N/A", ConfirmationType.YesNo);
+				if (confirmation != ConfirmationResult.Accept)
 				{
-					await this.MainContext.DisplayAsync(@"N/A");
 					return false;
 				}
+			}
 
-				if ((equipment.LastChecked.Value - DateTime.Today) > TimeSpan.Zero)
-				{
-					var dialog = this.MainContext.GetService<IDialogManager>();
-					var local = this.MainContext.GetLocal(@"Confirm BIG power");
-					var confirmation = await this.MainContext.ConfirmAsync(local, ConfirmationType.YesNo);
-					if (confirmation != ConfirmationResult.Accept)
-					{
-						return false;
-					}
-				}
-
+			using (var dbContext = this.MainContext.GetService<IDbContext>())
+			{
 				var isDeleted = Delete(dbContext, equipment);
 
 				dbContext.Complete();

@@ -1,8 +1,8 @@
 ﻿using System;
-using AppClient.BLL.EquipmentsModule.Models;
 using AppClient.Core.ViewModels;
+using AppClient.Modules.Equipments.Models;
 
-namespace AppClient.BLL.EquipmentsModule.ViewModels
+namespace AppClient.Modules.Equipments.ViewModels
 {
 	public sealed class EquipmentViewModel : ViewModel
 	{

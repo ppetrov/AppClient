@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>AppClient.BLL</RootNamespace>
-    <AssemblyName>AppClient.BLL</AssemblyName>
+    <RootNamespace>AppClient</RootNamespace>
+    <AssemblyName>AppClient</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AppClient.Core\AppClient.Core.csproj" />
+    <EmbeddedResource Update="Modules\Equipments\Views\EquipmentsView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

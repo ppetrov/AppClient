@@ -1,10 +1,9 @@
 ﻿using System;
-using AppClient.BLL.EquipmentsModule.Models;
-using AppClient.BLL.Navigation;
-using AppClient.Core.Core;
+using AppClient.Core;
 using AppClient.Core.ViewModels;
+using AppClient.Modules.Equipments.Models;
 
-namespace AppClient.BLL.EquipmentsModule.ViewModels
+namespace AppClient.Modules.Equipments.ViewModels
 {
 	public sealed class EquipmentsPageViewModel : PageViewModel
 	{
@@ -13,12 +12,6 @@ namespace AppClient.BLL.EquipmentsModule.ViewModels
 		public EquipmentsPageViewModel(MainContext mainContext) : base(mainContext)
 		{
 			if (mainContext == null) throw new ArgumentNullException(nameof(mainContext));
-
-			// Register = OK
-				//this.MainContext.RegisterServiceCreator(() => new EquipmentManager(this.MainContext));
-			//this.MainContext.RegisterService(new AppNavigationService(this.MainContext));
-			//var tmp = this.MainContext.GetService<AppNavigationService>();
-			//tmp.OpenModalAsync(string.Empty);
 
 			this.ViewModel = new EquipmentsViewModel(mainContext);
 		}

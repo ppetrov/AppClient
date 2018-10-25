@@ -7,9 +7,10 @@ using AppClient.Core.Dialog;
 using AppClient.Core.Features;
 using AppClient.Core.Localization;
 using AppClient.Core.Logs;
+using AppClient.Core.Navigation;
 using AppClient.Core.Services;
 
-namespace AppClient.Core.Core
+namespace AppClient.Core
 {
 	/// <summary>
 	/// Collection of all the services needed for the application - resolve services, feature tracking, caching, localization
@@ -20,6 +21,8 @@ namespace AppClient.Core.Core
 		private FeatureManager FeatureManager { get; } = new FeatureManager();
 		private DataCache DataCache { get; } = new DataCache();
 		private LocalizationManager LocalizationManager { get; } = new LocalizationManager();
+
+		public AppNavigationService NavigationService { get; } = new AppNavigationService();
 
 		/// <summary>
 		/// Helper method to get the registered service
