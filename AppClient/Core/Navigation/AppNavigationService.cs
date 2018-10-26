@@ -1,65 +1,114 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using AppClient.Core.ViewModels;
 using Xamarin.Forms;
 
 namespace AppClient.Core.Navigation
 {
 	public sealed class AppNavigationService
 	{
-		private Dictionary<string, Tuple<PageViewModel, ContentPage>> PageMappings { get; } = new Dictionary<string, Tuple<PageViewModel, ContentPage>>();
-		private Dictionary<string, Tuple<PageViewModel, ContentView>> ViewsMappings { get; } = new Dictionary<string, Tuple<PageViewModel, ContentView>>();
-
-		public void Register(string viewModelName, Tuple<PageViewModel, ContentPage> mapping)
-		{
-			if (viewModelName == null) throw new ArgumentNullException(nameof(viewModelName));
-			if (mapping == null) throw new ArgumentNullException(nameof(mapping));
-
-			this.PageMappings.Add(viewModelName, mapping);
-		}
-
-		public void Register(string viewModelName, Tuple<PageViewModel, ContentView> mapping)
-		{
-			if (viewModelName == null) throw new ArgumentNullException(nameof(viewModelName));
-			if (mapping == null) throw new ArgumentNullException(nameof(mapping));
-
-			this.ViewsMappings.Add(viewModelName, mapping);
-		}
-
 		/// <summary>
-		/// Set the main page of the application
+		/// Opens the page as a modal page
 		/// </summary>
-		/// <param name="viewModelName"></param>
-		/// <param name="parameter"></param>
-		public void SetMainPage(string viewModelName, object parameter = null)
-		{
-			Application.Current.MainPage = this.CreatePage(viewModelName, parameter);
-		}
-
-		/// <summary>
-		/// Open the corresponding page as a modal page
-		/// </summary>
-		/// <param name="viewModelName"></param>
-		/// <param name="parameter"></param>
+		/// <param name="page"></param>
 		/// <returns></returns>
-		public async Task<PageViewModel> OpenModalAsync(string viewModelName, object parameter = null)
+		public Task OpenModalAsync(ContentPage page)
 		{
-			if (viewModelName == null) throw new ArgumentNullException(nameof(viewModelName));
+			if (page == null) throw new ArgumentNullException(nameof(page));
 
-			var page = this.CreatePage(viewModelName, parameter);
-
-			await Application.Current.MainPage.Navigation.PushModalAsync(page);
-
-			return page.BindingContext as PageViewModel;
+			return Application.Current.MainPage.Navigation.PushModalAsync(page);
 		}
 
-		public Task<PageViewModel> OpenPopUpAsync(string viewModelName, object parameter = null, PopUpSettings settings = null)
+		/// <summary>
+		/// Open the view as pop up with viewModel set as BindingContext
+		/// </summary>
+		/// <param name="view"></param>
+		/// <param name="settings"></param>
+		/// <returns></returns>
+		public Task OpenPopUpAsync(ContentView view, PopUpSettings settings = null)
 		{
-			if (viewModelName == null) throw new ArgumentNullException(nameof(viewModelName));
+			if (view == null) throw new ArgumentNullException(nameof(view));
 
-			// TODO : !!!
-			return null;
+			var page = GetCurrentContentPage();
+
+			var grid = page.Content as Grid;
+
+			// Solid Background
+			var backgroundView = new ContentView();
+
+			settings = settings ?? PopUpSettings.Default;
+
+			if (settings.LightDismiss)
+			{
+				var tapGestureRecognizer = new TapGestureRecognizer();
+				tapGestureRecognizer.Command = new Command(() => { this.ClosePopUpAsync(); });
+				backgroundView.GestureRecognizers.Add(tapGestureRecognizer);
+			}
+			backgroundView.BackgroundColor = Color.Black;
+			backgroundView.Opacity = settings.BackgroundOpacity;
+			backgroundView.SetValue(Grid.RowProperty, 0);
+			backgroundView.SetValue(Grid.ColumnProperty, 0);
+			if (grid.RowDefinitions.Count > 0)
+			{
+				backgroundView.SetValue(Grid.RowSpanProperty, grid.RowDefinitions.Count);
+			}
+			if (grid.ColumnDefinitions.Count > 0)
+			{
+				backgroundView.SetValue(Grid.ColumnSpanProperty, grid.ColumnDefinitions.Count);
+			}
+
+			view.HorizontalOptions = settings.HorizontalOptions;
+			view.VerticalOptions = settings.VerticalOptions;
+			view.Margin = settings.Margin;
+			view.SetValue(Grid.RowProperty, 0);
+			view.SetValue(Grid.ColumnProperty, 0);
+			if (grid.RowDefinitions.Count > 0)
+			{
+				view.SetValue(Grid.RowSpanProperty, grid.RowDefinitions.Count);
+			}
+			if (grid.ColumnDefinitions.Count > 0)
+			{
+				view.SetValue(Grid.ColumnSpanProperty, grid.ColumnDefinitions.Count);
+			}
+
+			grid.Children.Add(backgroundView);
+			grid.Children.Add(view);
+
+			return Task.CompletedTask;
+		}
+
+		/// <summary>
+		/// Display the view in the host using an optional animation
+		/// </summary>
+		/// <param name="host"></param>
+		/// <param name="view"></param>
+		/// <param name="animate"></param>
+		/// <returns></returns>
+		public async Task DisplayViewAsync(ContentView host, View view, AnimateAppearance? animate = null)
+		{
+			if (host == null) throw new ArgumentNullException(nameof(host));
+			if (view == null) throw new ArgumentNullException(nameof(view));
+
+			switch (animate)
+			{
+				case AnimateAppearance.FromLeft:
+					await SlideToRight(host.Content);
+					break;
+				case AnimateAppearance.FromRight:
+					await SlideToLeft(host.Content);
+					break;
+			}
+
+			host.Content = view;
+
+			switch (animate)
+			{
+				case AnimateAppearance.FromLeft:
+					await SlideFromLeft(host.Content);
+					break;
+				case AnimateAppearance.FromRight:
+					await SlideFromRight(host.Content);
+					break;
+			}
 		}
 
 		/// <summary>
@@ -71,28 +120,70 @@ namespace AppClient.Core.Navigation
 			return Application.Current.MainPage.Navigation.PopModalAsync();
 		}
 
+		/// <summary>
+		/// Close the pop up
+		/// </summary>
+		/// <returns></returns>
 		public Task ClosePopUpAsync()
 		{
-			// TODO : !!!
-			return null;
+			var page = GetCurrentContentPage();
+
+			var grid = page.Content as Grid;
+
+			// Remove PopUp ContentView
+			grid.Children.RemoveAt(grid.Children.Count - 1);
+
+			// Remove Solid(Dim) Background
+			grid.Children.RemoveAt(grid.Children.Count - 1);
+
+			return Task.CompletedTask;
 		}
 
-		private ContentPage CreatePage(string viewModelName, object parameter)
+		private static ContentPage GetCurrentContentPage()
 		{
-			var values = this.PageMappings[viewModelName];
+			var mainPage = Application.Current.MainPage;
 
-			// Create ViewModel
-			var viewModel = values.Item1;
+			var modalStack = mainPage.Navigation.ModalStack;
+			if (modalStack.Count > 0)
+			{
+				mainPage = modalStack[modalStack.Count - 1];
+			}
 
-			// Load ViewModel with parameter
-			viewModel.LoadData(parameter);
+			return mainPage as ContentPage;
+		}
 
-			var page = values.Item2;
+		private static async Task SlideFromRight(View view)
+		{
+			if (view == null) throw new ArgumentNullException(nameof(view));
 
-			// Set bindingContext
-			page.BindingContext = viewModel;
+			view.TranslationX = Application.Current.MainPage.Width * 2;
 
-			return page;
+			await view.TranslateTo(0, 0);
+		}
+
+		private static async Task SlideFromLeft(View view)
+		{
+			if (view == null) throw new ArgumentNullException(nameof(view));
+
+			view.TranslationX = -Application.Current.MainPage.Width;
+
+			await view.TranslateTo(0, 0);
+		}
+
+		private static async Task SlideToLeft(View view)
+		{
+			if (view != null)
+			{
+				await view.TranslateTo(-Application.Current.MainPage.Width, 0, 400);
+			}
+		}
+
+		private static async Task SlideToRight(View view)
+		{
+			if (view != null)
+			{
+				await view.TranslateTo(Application.Current.MainPage.Width * 2, 0, 400);
+			}
 		}
 	}
 }
