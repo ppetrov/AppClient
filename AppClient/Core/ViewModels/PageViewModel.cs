@@ -29,13 +29,5 @@ namespace AppClient.Core.ViewModels
 
 			this.MainContext = mainContext;
 		}
-
-		/// <summary>
-		/// Load data for the given parameter
-		/// </summary>
-		/// <param name="parameter"></param>
-		public virtual void LoadData(object parameter)
-		{
-		}
 	}
 }

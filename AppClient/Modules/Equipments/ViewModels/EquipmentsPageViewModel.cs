@@ -16,7 +16,7 @@ namespace AppClient.Modules.Equipments.ViewModels
 			this.ViewModel = new EquipmentsViewModel(mainContext);
 		}
 
-		public override void LoadData(object parameter)
+		public void LoadData()
 		{
 			try
 			{

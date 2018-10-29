@@ -94,14 +94,14 @@ namespace AppClient.Modules.Equipments.ViewModels
 			this.SelectSortOptionCommand = new Command(this.SelectSortOption);
 		}
 
-		public override void LoadData(object parameter)
+		public void LoadData(EquipmentManager manager)
 		{
-			if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+			if (manager == null) throw new ArgumentNullException(nameof(manager));
 
 			this.IsBusy = true;
 			try
 			{
-				this.Manager = parameter as EquipmentManager;
+				this.Manager = manager;
 
 				this.Equipments.Clear();
 				foreach (var equipment in this.Manager.GetEquipments())
